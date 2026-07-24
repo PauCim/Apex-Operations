@@ -369,6 +369,7 @@
   <button type="button" class="tab-btn" id="tabChecklist">Safety Checklist</button>
   <button type="button" class="tab-btn incident-tab" id="tabIncident">Incident Report</button>
   <button type="button" class="tab-btn" id="tabSops">SOP Library</button>
+  <button type="button" class="tab-btn" id="tabTech">Tech Corner</button>
 </div>
 
 <div class="incident-banner" id="incidentBanner" style="display:none;">
@@ -765,16 +766,26 @@
   <div id="sopListContainer" style="max-width:608px; margin:0 auto; padding:0 16px 24px;"></div>
 </div>
 
+<!-- ===================== TECH CORNER ===================== -->
+<div id="techCornerSection" style="display:none;">
+  <div class="sop-search-wrap">
+    <input type="text" id="techSearch" placeholder="Search installation guides, wiring diagrams...">
+  </div>
+  <div id="techListContainer" style="max-width:608px; margin:0 auto; padding:0 16px 24px;"></div>
+</div>
+
 <script>
 /* ---------- Tab switching ---------- */
 const tabDaily = document.getElementById('tabDaily');
 const tabChecklist = document.getElementById('tabChecklist');
 const tabIncident = document.getElementById('tabIncident');
 const tabSops = document.getElementById('tabSops');
+const tabTech = document.getElementById('tabTech');
 const inspectionForm = document.getElementById('inspectionForm');
 const checklistForm = document.getElementById('checklistForm');
 const incidentForm = document.getElementById('incidentForm');
 const sopLibrarySection = document.getElementById('sopLibrarySection');
+const techCornerSection = document.getElementById('techCornerSection');
 const incidentBanner = document.getElementById('incidentBanner');
 const headerEyebrow = document.getElementById('headerEyebrow');
 const headerTitle = document.getElementById('headerTitle');
@@ -785,10 +796,12 @@ function showTab(tab){
   tabChecklist.classList.remove('active');
   tabIncident.classList.remove('active');
   tabSops.classList.remove('active');
+  tabTech.classList.remove('active');
   inspectionForm.classList.remove('active');
   checklistForm.classList.remove('active');
   incidentForm.classList.remove('active');
   sopLibrarySection.style.display = 'none';
+  techCornerSection.style.display = 'none';
   incidentBanner.style.display = 'none';
 
   if(tab === 'daily'){
@@ -816,6 +829,12 @@ function showTab(tab){
     headerEyebrow.textContent = 'Apex Health and Safety \u00b7 Reference';
     headerTitle.textContent = 'SOP Library';
     headerSub.textContent = 'Browse all Standard Operating Procedures. Tap any document to open it.';
+  } else if(tab === 'tech'){
+    tabTech.classList.add('active');
+    techCornerSection.style.display = 'block';
+    headerEyebrow.textContent = 'Apex Health and Safety \u00b7 Reference';
+    headerTitle.textContent = 'Tech Corner';
+    headerSub.textContent = 'Equipment installation guides, wiring diagrams, and product reference. Tap any document to open it.';
   }
 }
 
@@ -823,34 +842,42 @@ tabDaily.addEventListener('click', () => showTab('daily'));
 tabChecklist.addEventListener('click', () => showTab('checklist'));
 tabIncident.addEventListener('click', () => showTab('incident'));
 tabSops.addEventListener('click', () => showTab('sops'));
+tabTech.addEventListener('click', () => showTab('tech'));
 
-/* ===================== SOP LIBRARY ===================== */
+/* ===================== SOP LIBRARY (safety / general procedures) ===================== */
 // To add a new SOP: add one object below. "file" is the exact filename as
 // uploaded to this repo's root - leave it out (or set to null) if the PDF
 // hasn't been uploaded yet; it'll show as "not yet uploaded" instead of a
 // broken link.
 const sopLibrary = [
-  { number: "SOP-LV-001", title: "Drop Ceiling Cat6 / Low-Voltage Installation", category: "Installation Procedures", file: "SOP-LV-001 Drop-Ceiling-Cat6-Installation.pdf" },
   { number: "SOP-LV-002", title: "Concrete Floor Drilling & Utility Strike Prevention", category: "Drilling & Utility Safety", file: "SOP-LV-002 Concrete-Drilling-Utility-Strike-Prevention.pdf" },
   { number: "SOP-LV-004", title: "Power Tools Safety", category: "Tools & Equipment", file: "SOP-LV-004 Power-Tools-Safety.pdf" },
   { number: "SOP-LV-HSK-001", title: "Jobsite Housekeeping", category: "Housekeeping", file: "SOP-LV-HSK-001 Jobsite-Housekeeping.pdf" },
-  { number: "SOP-LV-010", title: "KT1 / KT2 / KT4 / KT400 Default Configuration", category: "Access Control", file: "SOP-LV-010 KT1-KT2-KT4-KT400 Default-Configuration.pdf" },
+];
+const sopCategoryOrder = ["Jobsite Safety", "Drilling & Utility Safety", "Tools & Equipment", "Ladder & Fall Safety", "Housekeeping"];
+
+/* ===================== TECH CORNER (installation, wiring, product info) ===================== */
+const techLibrary = [
+  { number: "SOP-LV-001", title: "Drop Ceiling Cat6 / Low-Voltage Installation", category: "Installation Procedures", file: "SOP-LV-001 Drop-Ceiling-Cat6-Installation.pdf" },
+  { number: "SOP-LV-010", title: "KT-1 Controller Default & Configuration", category: "Access Control", file: "SOP-LV-010 KT-1-Default-Configuration.pdf" },
+  { number: "SOP-LV-023", title: "KT-2 Controller Default & Configuration", category: "Access Control", file: "SOP-LV-023 KT-2-Default-Configuration.pdf" },
+  { number: "SOP-LV-024", title: "KT-4 Controller Default & Configuration", category: "Access Control", file: "SOP-LV-024 KT-4-Default-Configuration.pdf" },
+  { number: "SOP-LV-025", title: "KT-400 Controller Default & Configuration", category: "Access Control", file: "SOP-LV-025 KT-400-Default-Configuration.pdf" },
   { number: "SOP-LV-011", title: "KTES Door Entry Default & Configuration", category: "Access Control", file: "SOP-LV-011 KTES-Door-Entry-Default-Configuration.pdf" },
   { number: "TSW-LV-001", title: "RS-485 Communication Loop Troubleshooting Worksheet", category: "Access Control", file: "TSW-LV-001 RS485-Troubleshooting-Worksheet.pdf" },
   { number: "REF-AC-RS485-001", title: "RS485 Access Control Wiring Map \u2014 Lavendrye", category: "Site Notes", file: "REF-AC-RS485-001.pdf" },
 ];
+const techCategoryOrder = ["Installation Procedures", "Access Control", "Site Notes"];
 
-const categoryOrder = ["Jobsite Safety", "Drilling & Utility Safety", "Tools & Equipment", "Ladder & Fall Safety", "Installation Procedures", "Housekeeping", "Access Control", "Site Notes"];
-
-function renderSopLibrary(filterText){
-  const container = document.getElementById('sopListContainer');
+function renderLibrary(library, categoryOrder, filterText, containerId, emptyNoun){
+  const container = document.getElementById(containerId);
   const query = (filterText || '').trim().toLowerCase();
-  const filtered = sopLibrary.filter(s =>
+  const filtered = library.filter(s =>
     !query || s.number.toLowerCase().includes(query) || s.title.toLowerCase().includes(query)
   );
 
   if(!filtered.length){
-    container.innerHTML = '<div class="sop-empty-msg">No SOPs match \u201c' + filterText + '\u201d.</div>';
+    container.innerHTML = '<div class="sop-empty-msg">No ' + emptyNoun + ' match \u201c' + filterText + '\u201d.</div>';
     return;
   }
 
@@ -877,8 +904,10 @@ function renderSopLibrary(filterText){
   container.innerHTML = html;
 }
 
-document.getElementById('sopSearch').addEventListener('input', (e) => renderSopLibrary(e.target.value));
-renderSopLibrary('');
+document.getElementById('sopSearch').addEventListener('input', (e) => renderLibrary(sopLibrary, sopCategoryOrder, e.target.value, 'sopListContainer', 'SOPs'));
+document.getElementById('techSearch').addEventListener('input', (e) => renderLibrary(techLibrary, techCategoryOrder, e.target.value, 'techListContainer', 'documents'));
+renderLibrary(sopLibrary, sopCategoryOrder, '', 'sopListContainer', 'SOPs');
+renderLibrary(techLibrary, techCategoryOrder, '', 'techListContainer', 'documents');
 
 
 /* ---------- Shared photo-input helper ---------- */
