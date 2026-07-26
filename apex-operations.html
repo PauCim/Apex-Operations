@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Apex Health and Safety</title>
+
+<!-- Home screen icon & standalone app behaviour (iOS Safari "Add to Home Screen") -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Apex Ops">
+<meta name="theme-color" content="#0b1f3a">
 <style>
   :root{
     --navy:#0b1f3a;
@@ -293,6 +302,39 @@
     border-radius:6px;
     margin-bottom:12px;
   }
+  .daily-status-strip{
+    display:flex;
+    gap:8px;
+    max-width:608px;
+    margin:12px auto 0;
+    padding:0 16px;
+  }
+  .status-pill{
+    flex:1;
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    color:var(--navy-light);
+    background:#eef0f3;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:6px 10px;
+  }
+  .status-pill.done{
+    color:var(--ok);
+    background:#e7f4ed;
+    border-color:#bfe3cd;
+  }
+  .photo-nudge{
+    margin-top:10px;
+    font-size:12.5px;
+    font-weight:600;
+    color:#8a6d1a;
+    background:#fdf6ea;
+    border:1px solid #f0e4bd;
+    border-radius:6px;
+    padding:8px 10px;
+  }
   .incident-banner{
     background:#fdeceb;
     border:1px solid var(--fail);
@@ -370,6 +412,27 @@
     border-bottom:1px solid #eef0f3;
   }
   .simple-check:last-child{border-bottom:none;}
+  .simple-check.critical-check{
+    background:#fdf6ea;
+    margin:0 -16px;
+    padding-left:19px;
+    padding-right:16px;
+    border-left:3px solid var(--accent);
+    border-bottom:1px solid #f0e4bd;
+  }
+  .simple-check.critical-check .item-label::after{
+    content:'CRITICAL';
+    display:inline-block;
+    margin-left:8px;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.03em;
+    color:#8a6d1a;
+    background:#f3e3b8;
+    padding:1px 6px;
+    border-radius:8px;
+    vertical-align:middle;
+  }
   .simple-check input[type=checkbox]{
     width:21px;
     height:21px;
@@ -528,6 +591,11 @@
   <button type="button" class="tab-btn" id="tabTech">The Wire Room</button>
 </div>
 
+<div class="daily-status-strip" id="dailyStatusStrip">
+  <div class="status-pill" id="statusInspection">\u25CB Inspection not sent</div>
+  <div class="status-pill" id="statusChecklist">\u25CB Checklist not sent</div>
+</div>
+
 <div class="incident-banner" id="incidentBanner" style="display:none;">
   Use this only if damage, an accident, or a safety incident happens during the day. For anything involving injury, call for help first, then report here.
 </div>
@@ -608,6 +676,7 @@
     <input type="file" id="photos" accept="image/*" multiple>
     <div class="hint" style="margin-top:6px;">Tap to take a new photo, or choose existing ones from your gallery. You can select more than one.</div>
     <div id="photoPreview" class="photo-preview"></div>
+    <div class="photo-nudge" id="photoNudge" style="display:none;">A photo is the fastest way to explain a FAIL to someone who wasn't there \u2014 worth adding one if you can.</div>
   </div>
 
   <div class="submit-wrap">
@@ -682,7 +751,7 @@
       <div class="simple-check"><input type="checkbox" id="cl12"><label for="cl12" class="item-label">Known utilities, in-slab or in-wall services near today's work area?</label></div>
       <div class="simple-check"><input type="checkbox" id="cl13"><label for="cl13" class="item-label">Who do I contact if something comes up during the day?</label></div>
       <div class="simple-check"><input type="checkbox" id="cl14"><label for="cl14" class="item-label">Any work windows, quiet hours, restricted zones, or areas off-limits while students/staff are present?</label></div>
-      <div class="simple-check"><input type="checkbox" id="cl15"><label for="cl15" class="item-label">Any known or suspected asbestos-containing materials (attic insulation, pipe wrap, ceiling tile) in today's work area?</label></div>
+      <div class="simple-check critical-check"><input type="checkbox" id="cl15"><label for="cl15" class="item-label">Any known or suspected asbestos-containing materials (attic insulation, pipe wrap, ceiling tile) in today's work area?</label></div>
     </div>
   </div>
 
@@ -705,14 +774,14 @@
       <div class="simple-check"><input type="checkbox" id="cl23"><label for="cl23" class="item-label">Ladders inspected and rated for task; set up on stable, level surface</label></div>
       <div class="simple-check"><input type="checkbox" id="cl24"><label for="cl24" class="item-label">Fall protection in place for work above 3 m (10 ft) or per site policy</label></div>
       <div class="simple-check"><input type="checkbox" id="cl25"><label for="cl25" class="item-label">Lighting adequate for the task</label></div>
-      <div class="simple-check"><input type="checkbox" id="cl26"><label for="cl26" class="item-label">Attic/insulation type confirmed before disturbing — if insulation is unknown, loose-fill, or vermiculite-like, treat as suspected asbestos: stop and escalate to supervisor before proceeding<span class="ref">O. Reg. 278/05</span></label></div>
+      <div class="simple-check critical-check"><input type="checkbox" id="cl26"><label for="cl26" class="item-label">Attic/insulation type confirmed before disturbing — if insulation is unknown, loose-fill, or vermiculite-like, treat as suspected asbestos: stop and escalate to supervisor before proceeding<span class="ref">O. Reg. 278/05</span></label></div>
     </div>
   </div>
 
   <div class="card">
     <h2>6. Utility &amp; Structural Awareness</h2>
     <div class="checklist-simple" data-section="Utility & Structural Awareness">
-      <div class="simple-check"><input type="checkbox" id="cl27"><label for="cl27" class="item-label">Utility locates confirmed before any concrete drilling or core work<span class="ref"><a href="SOP-LV-002%20Concrete-Drilling-Utility-Strike-Prevention.pdf" target="_blank" rel="noopener">SOP-LV-002</a></span></label></div>
+      <div class="simple-check critical-check"><input type="checkbox" id="cl27"><label for="cl27" class="item-label">Utility locates confirmed before any concrete drilling or core work<span class="ref"><a href="SOP-LV-002%20Concrete-Drilling-Utility-Strike-Prevention.pdf" target="_blank" rel="noopener">SOP-LV-002</a></span></label></div>
       <div class="simple-check"><input type="checkbox" id="cl28"><label for="cl28" class="item-label">Drawings/as-builts reviewed for in-slab or in-wall services</label></div>
       <div class="simple-check"><input type="checkbox" id="cl29"><label for="cl29" class="item-label">Drilling/anchoring plan confirmed with site contact where required</label></div>
       <div class="simple-check"><input type="checkbox" id="cl30"><label for="cl30" class="item-label">Ceiling void checked for existing services before running cable<span class="ref"><a href="SOP-LV-001%20Drop-Ceiling-Cat6-Installation.pdf" target="_blank" rel="noopener">SOP-LV-001</a></span></label></div>
@@ -943,6 +1012,16 @@
 </div>
 
 <script>
+/* ---------- Offline support ----------
+   Registers the service worker so the app (and any SOP already opened once)
+   keeps working with zero signal - common in basements, mechanical rooms, and
+   rural sites. Fails silently on browsers/contexts that don't support it. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
 /* ---------- Tab switching ---------- */
 const tabDaily = document.getElementById('tabDaily');
 const tabChecklist = document.getElementById('tabChecklist');
@@ -1134,7 +1213,7 @@ renderLibrary(techLibrary, techCategoryOrder, '', 'techListContainer', 'document
 
 
 /* ---------- Shared photo-input helper ---------- */
-function setupPhotoInput(inputEl, previewEl, getPhotos, setPhotos){
+function setupPhotoInput(inputEl, previewEl, getPhotos, setPhotos, onChange){
   inputEl.addEventListener('change', function(){
     const newFiles = Array.from(inputEl.files || []);
     setPhotos(getPhotos().concat(newFiles));
@@ -1160,6 +1239,7 @@ function setupPhotoInput(inputEl, previewEl, getPhotos, setPhotos){
         render();
       });
     });
+    if(onChange) onChange();
   }
 }
 
@@ -1306,6 +1386,26 @@ function todayISO(){
   return local.toISOString().slice(0, 10);
 }
 
+/* ---------- Today's Status strip: a quick "did I already do this today" glance,
+   visible across every tab. Resets automatically at midnight since it just compares
+   the last-sent date to today's date - no cleanup job needed. ---------- */
+function markSentToday(key){
+  storageSet('lastSent_' + key, todayISO());
+  refreshDailyStatus();
+}
+function refreshDailyStatus(){
+  const today = todayISO();
+  const inspectionDone = storageGet('lastSent_inspection') === today;
+  const checklistDone = storageGet('lastSent_checklist') === today;
+  const iEl = document.getElementById('statusInspection');
+  const cEl = document.getElementById('statusChecklist');
+  iEl.textContent = (inspectionDone ? '\u2713 Inspection sent' : '\u25CB Inspection not sent');
+  iEl.classList.toggle('done', inspectionDone);
+  cEl.textContent = (checklistDone ? '\u2713 Checklist sent' : '\u25CB Checklist not sent');
+  cEl.classList.toggle('done', checklistDone);
+}
+refreshDailyStatus();
+
 /* ---------- Remembered technician name & van #, shared across all three forms ----------
    Typed once, remembered on this device, and prefilled (but never overwritten) everywhere else. */
 const PROFILE_KEY = 'profile';
@@ -1367,7 +1467,15 @@ const failCountEl = document.getElementById('failCount');
 const photoInput = document.getElementById('photos');
 const photoPreview = document.getElementById('photoPreview');
 let selectedPhotos = [];
-setupPhotoInput(photoInput, photoPreview, () => selectedPhotos, (p) => selectedPhotos = p);
+setupPhotoInput(photoInput, photoPreview, () => selectedPhotos, (p) => selectedPhotos = p, refreshPhotoNudge);
+
+/* ---------- Soft photo nudge: shows only once something's actually been marked
+   FAIL and there's nothing attached yet. Never blocks sending either way. ---------- */
+function refreshPhotoNudge(){
+  const hasFail = document.querySelectorAll('#inspectionForm .status-btns .fail.active').length > 0;
+  const nudge = document.getElementById('photoNudge');
+  nudge.style.display = (hasFail && selectedPhotos.length === 0) ? 'block' : 'none';
+}
 
 /* ---------- Persistent vehicle issues ----------
    A FAIL doesn't disappear at midnight - it stays attached to that van (on this
@@ -1482,11 +1590,13 @@ document.querySelectorAll('#inspectionForm .status-btns').forEach(group=>{
     failBtn.classList.remove('active');
     autoResolveMatchingIssue(row.dataset.item);
     saveInspectionDraft();
+    refreshPhotoNudge();
   });
   failBtn.addEventListener('click', ()=>{
     failBtn.classList.add('active','fail');
     okBtn.classList.remove('active');
     saveInspectionDraft();
+    refreshPhotoNudge();
   });
 });
 
@@ -1526,6 +1636,7 @@ function restoreInspectionDraft(){
 }
 restoreInspectionDraft();
 refreshOpenIssues();
+refreshPhotoNudge();
 inspectionForm.addEventListener('input', saveInspectionDraft);
 
 inspectionForm.addEventListener('submit', function(e){
@@ -1609,6 +1720,7 @@ inspectionForm.addEventListener('submit', function(e){
 
   storageRemove('draft_inspection');
   refreshOpenIssues();
+  markSentToday('inspection');
   sendReport(subject, body, selectedPhotos, RECIPIENT);
 });
 
@@ -1873,6 +1985,7 @@ checklistForm.addEventListener('submit', function(e){
 
   sites.forEach(rememberSite);
   storageRemove('draft_checklist');
+  markSentToday('checklist');
   sendReport(subject, body, selectedChecklistPhotos, RECIPIENT);
 });
 
